@@ -1,0 +1,79 @@
+================================================================================
+SESSION LOG: Backend Foundation, Middleware & ES Modules Setup
+================================================================================
+Date       : 2026-10-06
+Domain     : backend
+Feature    : core
+Status     : Completed
+--------------------------------------------------------------------------------
+
+1. OBJECTIVE
+   - Implement Step 1 of the backend development: Core server infrastructure,
+     ES Modules standard, configuration loader with Zod validation, standardized
+     API response helpers, centralized error handler, request validation middleware,
+     Express application setup, and `src/server.js` entrypoint.
+
+2. WORK PERFORMED & ARCHITECTURE DETAILS
+   - Configured Node.js ES Modules standard (`"type": "module"` in package.json).
+   - Created Zod-validated environment config loader (`src/config/env.js`) paired
+     with `.env.example` and local `.env` with fail-fast initialization.
+   - Built custom operational error class `AppError` (`src/utils/AppError.js`).
+   - Implemented standardized JSON response helpers `sendSuccess`, `sendCreated`,
+     and `sendPaginated` (`src/utils/response.js`).
+   - Created centralized error handling middleware (`src/middleware/errorHandler.js`)
+     to catch Zod validation errors, JWT expirations, and unexpected exceptions.
+   - Created reusable Zod validation middleware (`src/middleware/validate.js`).
+   - Configured Express app with security headers (`helmet`), CORS (`cors`), body
+     parsers, cookies (`cookie-parser`), logger (`morgan`), and health check
+     endpoint (`GET /api/v1/health`) in `src/app.js`.
+   - Created `src/server.js` HTTP server entrypoint with process exception handlers
+     and graceful shutdown (`SIGTERM`, `SIGINT`).
+
+3. WHY BEHIND THE CHANGE
+   - ES Modules: Aligns the backend with the modern JavaScript/Node.js standard
+     (consistent with frontend/React Native imports, future-proof, tree-shakeable).
+   - Zod Environment Validation: Prevents silent runtime crashes by ensuring missing
+     or invalid environment variables (secrets, ports, URLs) fail immediately on boot.
+   - Centralized Error & Response Formatting: Enforces a uniform API response contract
+     (`{ success: true/false, data, message, error }`) across all 11 modules.
+   - `src/server.js` Entrypoint: Separating `app.js` (Express configuration) from
+     `server.js` (HTTP transport, port binding, graceful shutdown) allows clean integration
+     testing with Supertest without port binding conflicts.
+
+4. WHY NOT THE ALTERNATIVE(S)
+   - Alternative 1: CommonJS (`require` / `module.exports`)
+     * Why Rejected: CommonJS is legacy in modern Node.js ecosystems. ES Modules
+       provide unified syntax across client and server repositories.
+   - Alternative 2: Unvalidated `process.env` access scattered across files
+     * Why Rejected: Leads to runtime bugs when environment variables are missing
+       or misconfigured in production.
+   - Alternative 3: Ad-hoc `try/catch` with manual `res.status().json()` in every controller
+     * Why Rejected: Causes inconsistent error payloads, code duplication, and leaked
+       internal server errors to clients.
+
+5. FILES MODIFIED / CREATED
+   - [MODIFY] server/package.json
+   - [CREATE] server/.env.example
+   - [CREATE] server/.env
+   - [CREATE] server/src/config/env.js
+   - [CREATE] server/src/utils/AppError.js
+   - [CREATE] server/src/utils/response.js
+   - [CREATE] server/src/utils/logger.js
+   - [CREATE] server/src/middleware/errorHandler.js
+   - [CREATE] server/src/middleware/validate.js
+   - [CREATE] server/src/app.js
+   - [CREATE] server/src/server.js
+   - [CREATE] logs/backend/core/server_foundation_2026-10-06.txt
+
+6. API ENDPOINTS / DB / EVENT CHANGES (if applicable)
+   - Route: GET /api/v1/health -> returns server health, uptime, environment
+   - Route: GET / -> returns API metadata
+
+7. TESTING & VERIFICATION
+   - Verified ESM dynamic module import and server initialization.
+   - Tested Zod configuration parsing and environment defaults.
+
+8. NEXT STEPS / OPEN ITEMS
+   - Proceed to Step 2: Authentication & RBAC Engine (Auth Zod schemas, JWT utilities,
+     Argon2 password hashing, and authentication/authorization middleware).
+================================================================================
