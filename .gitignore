@@ -27,3 +27,5 @@ server/logs/
 Thumbs.db
 desktop.ini
 PROJECT_LOG.md
+
+logs/
