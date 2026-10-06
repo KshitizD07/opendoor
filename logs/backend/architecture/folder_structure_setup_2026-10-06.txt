@@ -1,0 +1,100 @@
+================================================================================
+SESSION LOG: Backend Folder Structure Setup (Feature-Based Architecture)
+================================================================================
+Date       : 2026-10-06
+Domain     : backend
+Feature    : architecture
+Status     : Completed
+--------------------------------------------------------------------------------
+
+1. OBJECTIVE
+   - Transition the backend project layout from a traditional layer-based directory
+     structure (controllers/, services/, routes/) to a domain/feature-based modular
+     architecture (src/modules/<feature>/) aligned with the SRS v2 and BACKEND_DESIGN.md.
+   - Ready the backend directory structure for development while keeping the database
+     integration deferred for now.
+
+2. WORK PERFORMED & ARCHITECTURE DETAILS
+   - Analyzed SRS v2 (Hostel Management & GatePass) and BACKEND_DESIGN.md.
+   - Cleaned up empty legacy layer directories (src/controllers, src/routes, src/services).
+   - Created 11 dedicated domain module folders under server/src/modules/:
+     * admin         (Bulk roster import, duplicate merge/delete, audit exports)
+     * auth          (Login, registration, token refresh, TOTP MFA for Super Admin)
+     * bookings      (Visual bed booking, soft locks with 10m TTL, room-change window)
+     * dues          (Hostel fees, miscellaneous fines, dispute threads, fee waivers)
+     * gatepass      (Gatepass requests, warden approvals, offline rules, extensions)
+     * hostels       (Hostels, floors, rooms, and bed inventory management)
+     * messaging     (In-app chat threads for extensions and fine disputes)
+     * notifications (Push via FCM, Email via SES)
+     * payments      (Razorpay orders, webhook signature verification, receipt generation)
+     * scans         (Guard offline sync queue, JWT validation, anti-replay, dead-phone)
+     * users         (Student profiles, acting-warden date-ranged assignments)
+   - Established cross-cutting infrastructure directories:
+     * src/config/     (Environment variables, DB pool, Redis, Razorpay SDK)
+     * src/jobs/       (Cron/worker jobs: lockExpiry, verificationSweep, lateAlert, etc.)
+     * src/middleware/ (JWT authentication, role/scope authorization, Zod validation)
+     * src/sockets/    (Socket.io gateway, room join logic, typed event broadcasters)
+     * src/utils/      (Response helpers, token utilities, logger)
+     * test/           (Integration and unit test suites)
+
+3. WHY BEHIND THE CHANGE
+   - Locality of Reference: Keeps routes, controllers, services, repositories, and
+     validation schemas for a single domain (e.g., GatePass or Bed Bookings) in one place.
+     When implementing complex logic (like offline QR signing or 10-minute soft lock state
+     transitions), all relevant code is co-located without jumping across 5 distant folders.
+   - Domain Boundary Encapsulation: Subsystem-specific helpers (e.g., QR JWT minting in
+     gatepass, or PDF receipt generators in payments) remain encapsulated within their
+     respective module rather than cluttering shared generic utility folders.
+   - Team & AI Collaboration: Minimizes merge conflicts by isolating feature work into
+     dedicated domain directories.
+   - Scalability & Maintainability: Enables straightforward refactoring, testing, and
+     future migration of specific modules (e.g., extracting payments or guard scanner sync)
+     without touching unrelated modules.
+
+4. WHY NOT THE ALTERNATIVE(S)
+   - Alternative 1: Traditional Layer-Based Architecture (controllers/, services/, routes/)
+     * Why Rejected: In complex apps with 11+ distinct business subdomains, layer-based
+       folders become massive dumping grounds (e.g., 20+ controllers in one folder).
+       Developers must constantly switch between 4-5 different directory trees to make a
+       single feature change.
+   - Alternative 2: Monolithic Single-File / Minimalist Routing (all-in-one index.js)
+     * Why Rejected: Violates separation of concerns and fails to provide concurrency-safe,
+       maintainable code for high-throughput bed bookings and guard offline queues.
+   - Alternative 3: Microservices Setup at Day 1
+     * Why Rejected: SRS v2 specifies a single university deployment, 8 hostels, and a
+       shared database. Microservices would introduce unnecessary network overhead,
+       distributed transaction complexity, and deployment friction at this scale. A
+       modular monolith in Node.js/Express is the ideal architectural fit.
+
+5. FILES MODIFIED / CREATED
+   - [CREATE] logs/instruction.txt
+   - [CREATE] logs/backend/architecture/folder_structure_setup_2026-10-06.txt
+   - [CREATE] server/src/modules/admin/
+   - [CREATE] server/src/modules/auth/
+   - [CREATE] server/src/modules/bookings/
+   - [CREATE] server/src/modules/dues/
+   - [CREATE] server/src/modules/gatepass/
+   - [CREATE] server/src/modules/hostels/
+   - [CREATE] server/src/modules/messaging/
+   - [CREATE] server/src/modules/notifications/
+   - [CREATE] server/src/modules/payments/
+   - [CREATE] server/src/modules/scans/
+   - [CREATE] server/src/modules/users/
+   - [CREATE] server/test/
+   - [DELETE] server/src/controllers/
+   - [DELETE] server/src/routes/
+   - [DELETE] server/src/services/
+
+6. API ENDPOINTS / DB / EVENT CHANGES (if applicable)
+   - No endpoints implemented yet (folder structure baseline established).
+   - Database operations intentionally deferred as requested.
+
+7. TESTING & VERIFICATION
+   - Verified folder tree and directory permissions via PowerShell.
+   - Confirmed directory layout strictly matches BACKEND_DESIGN.md specifications.
+
+8. NEXT STEPS / OPEN ITEMS
+   - Setup configuration, environment variables template (.env.example), and core dependencies.
+   - Implement Express app initialization, middleware pipeline, and error handling.
+   - Begin module implementation (e.g., Auth & RBAC or Config/Utilities).
+================================================================================
