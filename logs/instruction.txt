@@ -1,0 +1,121 @@
+================================================================================
+OPENDOOR PROJECT — DAILY SESSION LOGGING PROTOCOL & INSTRUCTIONS
+================================================================================
+
+[ PURPOSE ]
+This document defines the standard operating procedure for logging daily work,
+architectural decisions, bug fixes, refactors, and feature implementations across
+the project. It ensures that progress is consistently tracked, searchable, and
+clean across different days and work sessions.
+
+[ CRITICAL RULES ]
+1. Every prompt or session that introduces a major change (architectural shift,
+   folder restructuring, schema modification, state machine alteration, security
+   rule change, or new dependency) MUST be logged.
+2. Every log entry MUST explicitly capture:
+   a) The "WHY BEHIND THE CHANGE" (technical, business, performance, or security rationale)
+   b) The "WHY NOT THE ALTERNATIVE(S)" (why alternative architectures/designs were rejected)
+
+--------------------------------------------------------------------------------
+1. FOLDER & FILE NAMING STRUCTURE
+--------------------------------------------------------------------------------
+
+All logs MUST follow this exact directory hierarchy:
+
+  logs/
+  ├── <domain>/
+  │   └── <feature>/
+  │       └── <task_name>_<YYYY-MM-DD>.txt
+
+Where:
+  • <domain>    : The high-level area of the system.
+                  Examples: backend, frontend, db, devops, docs, mobile
+  • <feature>   : The specific subsystem or module.
+                  Examples: architecture, auth, bookings, gatepass, payments,
+                            dues, scans, notifications, admin, messaging
+  • <task_name> : A clear, lowercase snake_case description of the task worked on.
+                  Examples: folder_structure_setup, reset_password, bed_soft_lock,
+                            qr_verification, razorpay_webhook, duplicate_merge
+  • <YYYY-MM-DD>: The date of the session (e.g., 2026-10-06).
+
+Examples:
+  - logs/backend/architecture/folder_structure_setup_2026-10-06.txt
+  - logs/backend/auth/reset_password_2026-10-06.txt
+  - logs/backend/bookings/soft_lock_concurrency_2026-10-07.txt
+  - logs/backend/gatepass/qr_jwt_signing_2026-10-08.txt
+  - logs/db/schema/initial_tables_and_indexes_2026-10-06.txt
+  - logs/frontend/warden/gatepass_queue_table_2026-10-09.txt
+
+--------------------------------------------------------------------------------
+2. PROMPT TEMPLATE TO COPY & PASS TO THE AI AGENT
+--------------------------------------------------------------------------------
+
+Copy and paste the prompt below at the beginning or end of your session:
+
+"""
+Please record a daily work log for today's session based on the standard protocol:
+- Domain  : [e.g., backend / frontend / db / mobile]
+- Feature : [e.g., architecture / auth / bookings / gatepass / payments]
+- Task    : [e.g., folder_structure_setup / reset_password / bed_soft_lock]
+- Date    : [Today's Date in YYYY-MM-DD format]
+
+Navigate to logs/<domain>/<feature>/ (create the folders if they do not exist),
+and create the log file: <task_name>_<YYYY-MM-DD>.txt.
+
+Include:
+1. Summary / Objective of the session
+2. Key Decisions & Work Performed
+3. WHY Behind the Change (Rationale, Drivers, Benefits)
+4. WHY NOT the Alternative(s) (Tradeoffs, Rejection Reasons)
+5. Files Created / Modified / Deleted
+6. State Transitions / APIs / Logic Added (if applicable)
+7. Verification & Testing Performed
+8. Pending / Next Steps
+"""
+
+--------------------------------------------------------------------------------
+3. STANDARD LOG FILE TEMPLATE (<task_name>_<YYYY-MM-DD>.txt)
+--------------------------------------------------------------------------------
+
+Every created log file should follow this clean layout:
+
+================================================================================
+SESSION LOG: <TASK_TITLE>
+================================================================================
+Date       : YYYY-MM-DD
+Domain     : <domain>
+Feature    : <feature>
+Status     : [ Completed / In Progress / Blocked ]
+--------------------------------------------------------------------------------
+
+1. OBJECTIVE
+   - Brief description of what we set out to build, fix, or refactor today.
+
+2. WORK PERFORMED & ARCHITECTURE DETAILS
+   - Detailed breakdown of implemented logic, state machine changes, or algorithms.
+
+3. WHY BEHIND THE CHANGE
+   - The concrete rationale behind this decision (e.g., scalability, concurrency
+     guarantees, security boundaries, maintainability, DPDP compliance).
+
+4. WHY NOT THE ALTERNATIVE(S)
+   - Alternative approaches considered.
+   - Why those alternatives were rejected (drawbacks, technical risks, maintainability issues).
+
+5. FILES MODIFIED / CREATED
+   - [CREATE] path/to/new_file.js
+   - [MODIFY] path/to/existing_file.js
+   - [DELETE] path/to/unused_file.js
+
+6. API ENDPOINTS / DB / EVENT CHANGES (if applicable)
+   - Route/Method: POST /api/v1/...
+   - WebSockets: bed:lock / scan:result
+   - DB Queries / Indexes added
+
+7. TESTING & VERIFICATION
+   - Tests executed (unit, integration, concurrency, manual check).
+   - Results and verification status.
+
+8. NEXT STEPS / OPEN ITEMS
+   - What needs to be done in the next session.
+================================================================================
