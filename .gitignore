@@ -1,0 +1,29 @@
+.env
+.env.local
+.env.*.local
+
+**/node_modules/
+
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.sw?
+
+
+# Build outputs
+client/dist/
+client/dist-ssr/
+
+# Prisma generated client
+server/generated/
+
+# PM2 / Winston logs
+server/logs/
+*.log
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+desktop.ini
+PROJECT_LOG.md
