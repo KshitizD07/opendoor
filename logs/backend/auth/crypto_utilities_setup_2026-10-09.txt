@@ -1,0 +1,90 @@
+================================================================================
+SESSION LOG: Auth Security, Cryptographic Utilities & Project Documentation
+================================================================================
+Date       : 2026-10-09
+Domain     : backend
+Feature    : auth
+Status     : Completed
+--------------------------------------------------------------------------------
+
+1. OBJECTIVE
+   - Implement the core cryptographic and token foundation for the Authentication
+     & RBAC engine in accordance with BACKEND_DESIGN.md and SRS v2.
+   - Build Argon2id password hashing, JWT Access and Opaque Refresh Token utilities,
+     and Super Admin TOTP Multi-Factor Authentication (2FA) helpers.
+   - Establish comprehensive project documentation via a top-level README.md.
+
+2. WORK PERFORMED & ARCHITECTURE DETAILS
+   - Created `server/src/utils/password.js`:
+     * Implemented `hashPassword()` using Argon2id (`memoryCost: 64MB`, `timeCost: 3`, `parallelism: 1`).
+     * Implemented `verifyPassword()` with graceful error handling against hash tampering.
+   - Created `server/src/utils/token.js`:
+     * Implemented `generateAccessToken()`: Issues 15-minute JWTs carrying identity claims (`sub`, `role`, `hostelIds`, `tokenVersion`).
+     * Implemented `verifyAccessToken()`: Validates incoming Bearer JWTs against `JWT_ACCESS_SECRET`.
+     * Implemented `generateRefreshToken()`: Produces 64-byte (128-char) cryptographically secure random hex strings.
+     * Implemented `hashToken()`: Generates SHA-256 digests of refresh tokens before database storage.
+     * Implemented `getRefreshTokenExpiry()`: Computes 7-day expiration dates.
+   - Created `server/src/utils/totp.js`:
+     * Implemented `generateTotpSecret()`: Generates base32 shared secrets via `otplib`.
+     * Implemented `generateTotpUri()`: Mints standard `otpauth://` URIs for Google Authenticator / Authy app setup.
+     * Implemented `verifyTotpToken()`: Verifies 6-digit TOTP codes with a `window: 1` (±30s) drift tolerance.
+   - Created root `README.md`:
+     * Comprehensive project documentation detailing multi-role capabilities (Student, Warden, Guard, Super Admin).
+     * Architecture highlights (concurrency-safe soft locks, offline QR scanning, dual-token auth).
+     * Local development instructions, environment variable catalog, and implementation roadmap.
+
+3. WHY BEHIND THE CHANGE
+   - Argon2id Password Hashing: Winner of the Password Hashing Competition (PHC).
+     Provides memory-hard protection against GPU/ASIC brute-force dictionary attacks,
+     far superior to legacy hashing algorithms (bcrypt/MD5/SHA).
+   - Dual-Token Model (Short-Lived Access + Opaque Refresh in httpOnly Cookies):
+     Limits the exposure window of stolen JWTs to 15 minutes. Opaque refresh tokens
+     stored in `httpOnly`, `Secure`, `SameSite=Strict` cookies prevent client-side XSS
+     token exfiltration while enabling silent token rotation.
+   - SHA-256 Hashing of Stored Refresh Tokens:
+     Storing raw refresh tokens in the database exposes all active user sessions if the
+     database is leaked. Storing one-way SHA-256 hashes ensures compromised database
+     dumps cannot be used to impersonate active users.
+   - TOTP MFA for Super Admin:
+     Super Admin accounts possess destructive privileges (bulk roster deletion, fee
+     waivers, system overrides). Mandatory Time-based One-Time Passwords (RFC 6238)
+     enforce 2-Factor Authentication ("something you know" + "something you have"),
+     neutralizing credential stuffing and phishing attacks without recurring SMS costs.
+
+4. WHY NOT THE ALTERNATIVE(S)
+   - Alternative 1: Bcrypt for Password Hashing
+     * Why Rejected: While standard, Bcrypt is vulnerable to modern GPU/FPGA parallel
+       attacks due to low memory utilization. Argon2id is the current industry gold standard.
+   - Alternative 2: Long-lived single JWT stored in localStorage
+     * Why Rejected: Insecure against XSS attacks; cannot be invalidated immediately
+       upon logout or compromise without maintaining a heavy server-side token blacklist.
+   - Alternative 3: SMS-Based 2FA OTP for Super Admin
+     * Why Rejected: Vulnerable to SIM-swapping, dependent on cellular network coverage,
+       and incurs external SaaS messaging costs (Twilio/AWS SNS). TOTP works 100% offline
+       and securely on user devices.
+
+5. FILES MODIFIED / CREATED
+   - [CREATE] server/src/utils/password.js
+   - [CREATE] server/src/utils/token.js
+   - [CREATE] server/src/utils/totp.js
+   - [CREATE] README.md
+   - [CREATE] logs/backend/auth/crypto_utilities_setup_2026-10-09.txt
+
+6. API ENDPOINTS / DB / EVENT CHANGES (if applicable)
+   - Cryptographic primitives established; no HTTP endpoints bound yet.
+
+7. TESTING & VERIFICATION
+   - Verified Argon2id password hashing and match verification.
+   - Verified JWT generation, signing, and verification.
+   - Verified 64-byte random refresh token generation and SHA-256 hashing.
+   - Verified TOTP base32 secret generation and `otpauth://` URI schema.
+
+8. NEXT STEPS / OPEN ITEMS
+   - Implement Auth Zod validation schemas (`auth.schema.js`).
+   - Implement In-Memory Auth repository (`auth.repository.js`) to support development before DB attachment.
+   - Build API 1: Registration endpoint (`POST /api/v1/auth/register`).
+   - Build API 2: Login endpoint (`POST /api/v1/auth/login`) with cookie-based token issue.
+   - Build API 3: Token Refresh & Rotation endpoint (`POST /api/v1/auth/refresh`).
+   - Build API 4: Super Admin 2FA verification endpoint (`POST /api/v1/auth/mfa/verify`).
+   - Build security middleware (`authenticate.js` and `authorize.js`).
+================================================================================
