@@ -14,8 +14,8 @@ class AuthController {
       const user = await authService.register(req.body);
       return sendCreated(
         res,
-        'Registration successful. Your account is pending verification.',
         user,
+        'Registration successful. Your account is pending verification.'
       );
     } catch (error) {
       next(error);
