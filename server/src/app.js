@@ -8,6 +8,7 @@ import env from './config/env.js';
 import AppError from './utils/AppError.js';
 import { sendSuccess } from './utils/response.js';
 import errorHandler from './middleware/errorHandler.js';
+import authRoutes from './modules/auth/auth.routes.js';
 
 const app = express();
 
@@ -44,6 +45,9 @@ apiRouter.get('/health', (req, res) => {
     uptime: `${Math.floor(process.uptime())}s`,
   }, 'Opendoor API is running');
 });
+
+// Domain Module Routes
+apiRouter.use('/auth', authRoutes);
 
 // Mount /api/v1 prefix
 app.use('/api/v1', apiRouter);
