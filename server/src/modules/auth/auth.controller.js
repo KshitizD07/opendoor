@@ -15,7 +15,7 @@ class AuthController {
       return sendCreated(
         res,
         'Registration successful. Your account is pending verification.',
-        user
+        user,
       );
     } catch (error) {
       next(error);
