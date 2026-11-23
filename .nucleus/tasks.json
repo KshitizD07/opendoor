@@ -1,0 +1,62 @@
+[
+  {
+    "id": "task-auth-01",
+    "title": "Setup JWT Authentication API in server",
+    "lane": "backend",
+    "status": "approved",
+    "assigned_to": "Kshitiz",
+    "depends_on_contracts": [
+      "CONTRACT/api.md"
+    ]
+  },
+  {
+    "id": "task-ui-01",
+    "title": "Build Login & Dashboard Screen in client",
+    "lane": "frontend",
+    "status": "approved",
+    "assigned_to": "Harsh",
+    "depends_on_contracts": [
+      "CONTRACT/api.md"
+    ]
+  },
+  {
+    "id": "task-backend-02",
+    "title": "Implement User Profile API (GET & PUT /api/v1/users/profile)",
+    "lane": "backend",
+    "status": "in_review",
+    "assigned_to": "Kshitiz",
+    "depends_on_contracts": [
+      "CONTRACT/api.md"
+    ]
+  },
+  {
+    "id": "task-frontend-02",
+    "title": "Build User Profile Settings Page in client",
+    "lane": "frontend",
+    "status": "in_review",
+    "assigned_to": "Harsh",
+    "depends_on_contracts": [
+      "CONTRACT/api.md"
+    ]
+  },
+  {
+    "id": "task-backend-03",
+    "title": "Implement Notification Preferences API in server",
+    "lane": "backend",
+    "status": "in_review",
+    "assigned_to": "Kshitiz",
+    "depends_on_contracts": [
+      "CONTRACT/api.md"
+    ]
+  },
+  {
+    "id": "task-frontend-03",
+    "title": "Build Notification Bell & Settings Modal in client",
+    "lane": "frontend",
+    "status": "unassigned",
+    "assigned_to": null,
+    "depends_on_contracts": [
+      "CONTRACT/api.md"
+    ]
+  }
+]
