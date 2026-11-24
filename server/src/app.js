@@ -9,6 +9,8 @@ import AppError from './utils/AppError.js';
 import { sendSuccess } from './utils/response.js';
 import errorHandler from './middleware/errorHandler.js';
 import authRoutes from './modules/auth/auth.routes.js';
+import usersRoutes from './modules/users/users.routes.js';
+import notificationsRoutes from './modules/notifications/notifications.routes.js';
 
 const app = express();
 
@@ -46,8 +48,18 @@ apiRouter.get('/health', (req, res) => {
   }, 'Opendoor API is running');
 });
 
+// Ping endpoint
+apiRouter.get('/ping', (req, res) => {
+  return sendSuccess(res, {
+    pong: true,
+    timestamp: new Date().toISOString(),
+  }, 'Pong');
+});
+
 // Domain Module Routes
 apiRouter.use('/auth', authRoutes);
+apiRouter.use('/users', usersRoutes);
+apiRouter.use('/notifications', notificationsRoutes);
 
 // Mount /api/v1 prefix
 app.use('/api/v1', apiRouter);
